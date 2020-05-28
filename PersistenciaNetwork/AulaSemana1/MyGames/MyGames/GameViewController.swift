@@ -15,6 +15,7 @@ class GameViewController: UIViewController {
     @IBOutlet weak var lbConsole: UILabel!
     @IBOutlet weak var lbReleaseDate: UILabel!
     @IBOutlet weak var ivCover: UIImageView!
+    @IBOutlet weak var ivPlataforma: UIImageView!
     
     
     var game: Game?
@@ -41,8 +42,16 @@ class GameViewController: UIViewController {
        
         if let image = game?.cover as? UIImage {
             ivCover.image = image
+
         } else {
             ivCover.image = UIImage(named: "noCoverFull")
+        }
+        
+        if let imagePlataforma = game?.console?.cover as? UIImage {
+            ivPlataforma.image = imagePlataforma
+
+        } else {
+            ivPlataforma.image = UIImage(named:"noCoverFull")
         }
     }
 
