@@ -2,10 +2,11 @@
 //  Car.swift
 //  Carangas
 //
-//  Created by Douglas Frari on 29/05/20.
+//  Created by Thiago Matheus on 29/05/20.
 //  Copyright © 2020 CESAR School. All rights reserved.
 //
 
+import Foundation
 
 class Car: Codable {
    
@@ -27,4 +28,6 @@ class Car: Codable {
     }
 }
 
-
+struct Brand: Codable {
+    let fipe_name: String
+}

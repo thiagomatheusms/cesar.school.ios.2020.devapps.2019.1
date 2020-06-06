@@ -7,12 +7,12 @@
 //
 
 import UIKit
+import SideMenu
 
 class CarsTableViewController: UITableViewController {
     
     
     var cars: [Car] = []
-    
     
     var label: UILabel = {
         let label = UILabel()
@@ -30,6 +30,7 @@ class CarsTableViewController: UITableViewController {
         refreshControl?.addTarget(self, action: #selector(loadCars), for: .valueChanged)
         tableView.refreshControl = refreshControl
         
+        setupSideMenu()
     }
     
     @objc fileprivate func loadCars() {
@@ -39,10 +40,8 @@ class CarsTableViewController: UITableViewController {
             
             // precisa recarregar a tableview usando a main UI thread
             DispatchQueue.main.async {
-                
                 self.label.text = "Não existem carros cadastrados."
                 self.refreshControl?.endRefreshing()
-                
                 self.tableView.reloadData()
             }
             
@@ -68,16 +67,11 @@ class CarsTableViewController: UITableViewController {
                 }
             }
             
-            print(response)
-            
             DispatchQueue.main.async {
-                
-                self.label.text = "Não existem carros cadastrados."
-                self.refreshControl?.endRefreshing()
-                
-                // TODO mostrar uma alerta similar ao implementado na tela AddEditViewController
+                self.label.text = response
+                self.tableView.backgroundView = self.label
+                print(response)
             }
-            
         }
     }
     
@@ -95,12 +89,9 @@ class CarsTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        // atribui nossa label para mostrar se tem ou nao dados
         tableView.backgroundView = cars.count == 0 ? label : nil
-                
-        return cars.count
         
+        return cars.count
     }
     
     
@@ -127,22 +118,21 @@ class CarsTableViewController: UITableViewController {
     // Override to support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            // 1
             let car = cars[indexPath.row]
-            
-            REST.delete(car: car) { (success) in
+            REST.delete(car: car, onComplete: { (success) in
                 if success {
-                                        
+                    
                     // ATENCAO nao esquecer disso
                     self.cars.remove(at: indexPath.row)
                     
                     DispatchQueue.main.async {
-                        
                         // Delete the row from the data source
                         tableView.deleteRows(at: [indexPath], with: .fade)
-                        
                     }
                 }
+            }) { (CarError) in
+                
+               
             }
         }
     }
@@ -164,9 +154,9 @@ class CarsTableViewController: UITableViewController {
      */
     
     
-     // MARK: - Navigation
-     
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
+    // MARK: - Navigation
+    
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
@@ -176,6 +166,16 @@ class CarsTableViewController: UITableViewController {
         }
         
     }
-     
+    
+    private func setupSideMenu() {
+           // Define the menus
+           SideMenuManager.default.leftMenuNavigationController = storyboard?.instantiateViewController(withIdentifier: "LeftMenuNavigationController") as? SideMenuNavigationController
+                   
+           // Enable gestures. The left and/or right menus must be set up above for these to work.
+           // Note that these continue to work on the Navigation Controller independent of the View Controller it displays!
+           SideMenuManager.default.addPanGestureToPresent(toView: navigationController!.navigationBar)
+           SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: view)
+       }
+    
     
 }
